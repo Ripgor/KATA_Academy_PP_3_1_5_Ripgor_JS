@@ -25,8 +25,16 @@
                 <td th:text="${user.getName()}"></td>
                 <td th:text="${user.getEmail()}"></td>
                 <td th:text="${user.getRoles()}"></td>
-                <td><a th:href="@{/admin/update/{id}(id=${user.getId()})}">Edit</a></td>
-                <td><a th:href="@{/admin/delete/{id}(id=${user.getId()})}">Delete</a></td>
+                <td>
+                    <span th:unless="${user.getId() == 1}">
+                        <a th:href="@{/admin/update/{id}(id=${user.getId()})}">Edit</a>
+                    </span>
+                </td>
+                <td>
+                    <span th:unless="${user.getId() == 1}">
+                        <a th:href="@{/admin/delete/{id}(id=${user.getId()})}">Delete</a>
+                    </span>
+                </td>
             </tr>
             </tbody>
         </table>

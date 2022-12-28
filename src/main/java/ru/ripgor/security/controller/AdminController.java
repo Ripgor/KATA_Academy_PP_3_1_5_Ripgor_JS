@@ -2,15 +2,12 @@ package ru.ripgor.security.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.ripgor.security.model.Role;
 import ru.ripgor.security.model.User;
 import ru.ripgor.security.repository.RoleRepository;
 import ru.ripgor.security.service.UserService;
 
-import javax.validation.Valid;
-import java.util.List;
+import java.security.Principal;
 
 @Controller
 @RequestMapping("/admin")
@@ -26,73 +23,36 @@ public class AdminController {
     }
 
     @GetMapping()
-    public String getAllUsers(Model model) {
-        List<User> users = userService.getAllUsers();
-
-        model.addAttribute("users", users);
-
-        return "index";
+    public String getAdminPage(Principal principal, Model model) {
+        model.addAttribute("user", userService.getUser(principal.getName()));
+        model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("roles", roleRepository.findAll());
+        return "admin/admin_page";
     }
 
     @GetMapping("/create")
-    public String getFormForCreateUser(@ModelAttribute("user") User user, Model model) {
-        List<Role> roles = roleRepository.findAll();
-        model.addAttribute("roles", roles);
+    public String getCreatePage(Principal principal, Model model) {
+        model.addAttribute("user", userService.getUser(principal.getName()));
+        model.addAttribute("roles", roleRepository.findAll());
 
-        return "create";
+        return "admin/create_page";
     }
 
     @PostMapping("/create")
-    public String createUser(@Valid User user, BindingResult result, Model model) {
-        User userFromDB = userService.getUser(user.getId());
-
-        if (result.hasErrors()) {
-            List<Role> roles = roleRepository.findAll();
-
-            model.addAttribute("roles", roles);
-            model.addAttribute("user", user);
-            return "create";
-        }
-
-        if (userFromDB != null) {
-            model.addAttribute("exists", "User Exists");
-            return "create";
-        }
-
+    public String createUser(@ModelAttribute("user") User user) {
         userService.saveUser(user);
 
         return "redirect:/admin";
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public String deleteUser(@PathVariable("id") int id) {
         userService.deleteUser(id);
-
         return "redirect:/admin";
     }
 
-    @GetMapping("/update/{id}")
-    public String getFormForUpdateUser(@PathVariable("id") int id, Model model) {
-        User user = userService.getUser(id);
-        List<Role> roles = roleRepository.findAll();
-
-        model.addAttribute("roles", roles);
-        model.addAttribute("user", user);
-
-        return "update";
-    }
-
-    @PatchMapping("/update")
-    public String updateUser(@Valid User user, BindingResult result, Model model) {
-
-        if (result.hasErrors()) {
-            List<Role> roles = roleRepository.findAll();
-
-            model.addAttribute("roles", roles);
-            model.addAttribute("user", user);
-            return "update";
-        }
-
+    @PutMapping("/update/{id}")
+    public String updateUser(User user) {
         userService.updateUser(user);
 
         return "redirect:/admin";

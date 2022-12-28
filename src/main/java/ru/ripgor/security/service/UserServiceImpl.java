@@ -50,11 +50,10 @@ public class UserServiceImpl implements UserService {
         userToUpdate.setName(user.getName());
         userToUpdate.setEmail(user.getEmail());
 
-        if ("".equals(user.getPassword()) || passwordEncoder.matches(user.getPassword(), userToUpdate.getPassword())) {
-            userToUpdate.setPassword(userToUpdate.getPassword());
-        } else {
-            userToUpdate.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (!user.getPassword().equals(userRepository.findById(user.getId()).getPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
+
         userToUpdate.setRoles(user.getRoles());
 
         userRepository.save(userToUpdate);

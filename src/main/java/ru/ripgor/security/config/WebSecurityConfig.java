@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -29,6 +30,7 @@ import ru.ripgor.security.service.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private UserDetailsServiceImpl userDetailsService;
@@ -50,13 +52,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()   // Отключаем csrf-защиту (чтобы не париться)
                 .authorizeRequests()    // настройка авторизованных запросов
-                .antMatchers("/admin/**").hasRole("ADMIN")  // На страницу админов пускаем только админов
-                .antMatchers("/user/**").hasAnyRole("USER", "ADMIN")    // страница пользователя может быть и у админа, и у пользователя
-                .antMatchers("/", "/login").permitAll()    // В корень и на страницы логина и регистрации пускаем всех
-                .anyRequest().authenticated()   // остальные запросы -- по аутентификации
+                .antMatchers("/").authenticated()    // В корень пускаем после аутентификации
                 .and()
-                .formLogin()    // Настройка страницы логина
-                .successHandler(successUserHandler)     // Прикручиваем к ней логику перенаправления на нужные запросы
+                .formLogin().permitAll()    // Настройка страницы логина -- пускаем всех
+                .successHandler(successUserHandler)     // Прикручиваем к ней логику перенаправления на нужные запросы (Да, знаю что не используется)
                 .and()
                 .logout().permitAll();      // на страницу логаута пускаем всех
 

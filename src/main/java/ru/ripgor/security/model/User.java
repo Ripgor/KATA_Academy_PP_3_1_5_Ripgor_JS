@@ -30,7 +30,7 @@ public class User {
     private String password;
 
     @OneToMany (cascade = {
-            CascadeType.PERSIST,
+            //CascadeType.PERSIST,
             CascadeType.MERGE
     })
     @JoinTable(name = "user_role",
